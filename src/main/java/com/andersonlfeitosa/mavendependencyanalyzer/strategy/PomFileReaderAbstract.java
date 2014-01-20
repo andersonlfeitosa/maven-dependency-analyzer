@@ -1,9 +1,10 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.strategy;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -16,25 +17,23 @@ import org.jdom.input.SAXBuilder;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Artifact;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Dependency;
 
-public abstract class PomFileReaderAbstract implements IPomFileReader {
+public abstract class PomFileReaderAbstract implements IPomReader {
+	
+	protected Map<String, Artifact> artifacts = new HashMap<String, Artifact>();
 
 	@SuppressWarnings("unchecked")
-	public static List<Artifact> execute(File baseDirectory) {
+	protected void execute(File baseDirectory) {
 		Collection<File> fileList = FileUtils.listFiles(baseDirectory,
 				FileFilterUtils.nameFileFilter("pom.xml"),
 				TrueFileFilter.INSTANCE);
 
-		List<Artifact> artifacts = new ArrayList<Artifact>();
-
 		for (File pomFile : fileList) {
-			artifacts.add(retrieve(pomFile));
+			retrieveArtifacts(pomFile);
 		}
-
-		return artifacts;
 	}
 
-	private static Artifact retrieve(File pomFile) {
-		Artifact artifact = null;
+	@SuppressWarnings("unchecked")
+	private void retrieveArtifacts(File pomFile) {
 		SAXBuilder builder = new SAXBuilder();
 		Document docPom = null;
 
@@ -44,43 +43,59 @@ public abstract class PomFileReaderAbstract implements IPomFileReader {
 			e.printStackTrace();
 		}
 
-		Namespace nsPom = Namespace
-				.getNamespace("http://maven.apache.org/POM/4.0.0");
-		Element elementoPomRaiz = docPom.getRootElement();
-
-		String packaging = elementoPomRaiz.getChildText("packaging", nsPom);
+		Namespace nsPom = Namespace.getNamespace("http://maven.apache.org/POM/4.0.0");
+		Element elRoot = docPom.getRootElement();
+		String packaging = elRoot.getChildText("packaging", nsPom);
 		if (packaging != null && !"pom".equalsIgnoreCase(packaging)) {
-			artifact = new Artifact();
-			artifact.setGroupId(elementoPomRaiz.getChildText("groupId", nsPom));
-			artifact.setArtifactId(elementoPomRaiz.getChildText("artifactId",
-					nsPom));
-			artifact.setVersion(elementoPomRaiz.getChildText("version", nsPom));
+			
+			Artifact artifact = new Artifact();
+			artifact.setGroupId(elRoot.getChildText("groupId", nsPom));
+			artifact.setArtifactId(elRoot.getChildText("artifactId", nsPom));
+			artifact.setVersion(elRoot.getChildText("version", nsPom) == null ? "1.0.0.0-SNAPSHOT" : elRoot.getChildText("version", nsPom));
 			artifact.setPackaging(packaging);
 
-			Element dependencies = elementoPomRaiz.getChild("dependencies",
-					nsPom);
-			if (dependencies != null) {
-				@SuppressWarnings("unchecked")
-				List<Element> dependenciesList = dependencies.getChildren();
-
+			Element elDependencies = elRoot.getChild("dependencies", nsPom);
+			if (elDependencies != null) {
+				List<Element> dependenciesList = elDependencies.getChildren();
 				if (dependenciesList != null) {
-					for (Element dependency : dependenciesList) {
-						Dependency d = new Dependency();
-						d.setArtifact(artifact);
-						d.setClassifier(dependency.getChildText("classifier",
-								nsPom));
-						// d.set (dependency.getChildText("classifier", nsPom));
-
-						// d.setClassifier(classifier);
-
+					for (Element elDependency : dependenciesList) {
+						Dependency dependency = new Dependency();
+						dependency.setArtifact(artifact);
+						dependency.setClassifier(elDependency.getChildText("classifier", nsPom));
+						dependency.setScope(elDependency.getChildText("scope", nsPom));
+						dependency.setType(elDependency.getChildText("type", nsPom));
+						
+						String groupId = elDependency.getChildText("groupId", nsPom);
+						String artifactId = elDependency.getChildText("artifactId", nsPom);
+						String version = elDependency.getChildText("version", nsPom);
+						
+						Artifact artifactDependent = artifacts.get(groupId + ":" + artifactId + ":" + version);
+						if (artifactDependent == null) {
+							artifactDependent = new Artifact();
+							artifactDependent.setArtifactId(artifactId);
+							artifactDependent.setGroupId(groupId);
+							artifactDependent.setVersion(version);
+							artifactDependent.setPackaging(getPackaging(dependency.getType(), dependency.getClassifier()));
+							artifacts.put(groupId + ":" + artifactId + ":" + version, artifactDependent);
+						}
+						
+						dependency.setDependency(artifactDependent);
+						artifact.getDependencies().add(dependency);
 					}
 				}
-
 			}
-
+			artifacts.put(artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion(), artifact);
 		}
+	}
 
-		return artifact;
+	private String getPackaging(String type, String classifier) {
+		if (type == null || "jar".equalsIgnoreCase(type)) {
+			return "jar";
+		} else if ("ejb-client".equalsIgnoreCase(type) || "client".equalsIgnoreCase(classifier)) {
+			return "ejb";
+		}
+		
+		return type;
 	}
 
 }

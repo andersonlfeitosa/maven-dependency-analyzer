@@ -1,11 +1,13 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.strategy;
 
-public interface IPomFileReader {
+import java.io.File;
+
+public interface IPomReader {
 	
 	/**
 	 * This method read all pom.xml files contained in file specified as parameter.
 	 * @param file directory will be read.
 	 */
-	void read(String file);
+	void read(File file);
 
 }
