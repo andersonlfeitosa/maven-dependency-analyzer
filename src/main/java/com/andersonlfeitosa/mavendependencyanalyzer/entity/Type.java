@@ -9,6 +9,5 @@ public enum Type {
 	EAR,
 	
 	EJB_CLIENT,
-	
 
 }

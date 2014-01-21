@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Artifact;
 import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 import com.andersonlfeitosa.mavendependencyanalyzer.util.GAVFormatter;
 import com.andersonlfeitosa.mavendependencyanalyzer.xml.Dependency;
@@ -31,8 +32,24 @@ public class MavenDependencyAnalyzer {
 
 	public void execute(String directory) {
 		readPom(createXStream(), null, createFile(directory, "/pom.xml"));
+		persistObjects();
 	}
 	
+	private void persistObjects() {
+		for (Project p : poms.values()) {
+			Artifact a = new Artifact();
+			a.setArtifactId(p.getArtifactId());
+			a.setGroupId(p.getGroupId());
+			a.setPackaging(p.getPackaging());
+			a.setVersion(p.getVersion());
+			
+			for (Dependency d : p.getDependencies()) {
+				com.andersonlfeitosa.mavendependencyanalyzer.entity.Dependency d2 = new com.andersonlfeitosa.mavendependencyanalyzer.entity.Dependency();
+				d2.setArtifact(a);
+			}
+		}
+	}
+
 	private File createFile(String... path) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < path.length; i++) {
