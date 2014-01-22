@@ -14,12 +14,12 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
-import com.andersonlfeitosa.mavendependencyanalyzer.entity.Artifact;
-import com.andersonlfeitosa.mavendependencyanalyzer.entity.Dependency;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
 
 public abstract class PomFileReaderAbstract implements IPomReader {
 	
-	protected Map<String, Artifact> artifacts = new HashMap<String, Artifact>();
+	protected Map<String, ArtifactEntity> artifacts = new HashMap<String, ArtifactEntity>();
 
 	@SuppressWarnings("unchecked")
 	protected void execute(File baseDirectory) {
@@ -48,7 +48,7 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 		String packaging = elRoot.getChildText("packaging", nsPom);
 		if (packaging != null && !"pom".equalsIgnoreCase(packaging)) {
 			
-			Artifact artifact = new Artifact();
+			ArtifactEntity artifact = new ArtifactEntity();
 			artifact.setGroupId(elRoot.getChildText("groupId", nsPom));
 			artifact.setArtifactId(elRoot.getChildText("artifactId", nsPom));
 			artifact.setVersion(elRoot.getChildText("version", nsPom) == null ? "1.0.0.0-SNAPSHOT" : elRoot.getChildText("version", nsPom));
@@ -59,7 +59,7 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 				List<Element> dependenciesList = elDependencies.getChildren();
 				if (dependenciesList != null) {
 					for (Element elDependency : dependenciesList) {
-						Dependency dependency = new Dependency();
+						DependencyEntity dependency = new DependencyEntity();
 						dependency.setArtifact(artifact);
 						dependency.setClassifier(elDependency.getChildText("classifier", nsPom));
 						dependency.setScope(elDependency.getChildText("scope", nsPom));
@@ -69,9 +69,9 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 						String artifactId = elDependency.getChildText("artifactId", nsPom);
 						String version = elDependency.getChildText("version", nsPom);
 						
-						Artifact artifactDependent = artifacts.get(groupId + ":" + artifactId + ":" + version);
+						ArtifactEntity artifactDependent = artifacts.get(groupId + ":" + artifactId + ":" + version);
 						if (artifactDependent == null) {
-							artifactDependent = new Artifact();
+							artifactDependent = new ArtifactEntity();
 							artifactDependent.setArtifactId(artifactId);
 							artifactDependent.setGroupId(groupId);
 							artifactDependent.setVersion(version);

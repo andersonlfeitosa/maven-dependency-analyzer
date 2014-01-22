@@ -1,6 +1,7 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -13,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table (name = "ARTIFACT")
-public class Artifact implements Serializable {
+public class ArtifactEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,14 +29,14 @@ public class Artifact implements Serializable {
 	@Column(nullable = false)
 	private String artifactId;
 	
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String packaging;
 	
 	@Column(nullable = false)
 	private String version;
 	
 	@OneToMany(mappedBy = "dependency")
-	private List<Dependency> dependencies;
+	private List<DependencyEntity> dependencies = new ArrayList<DependencyEntity>();
 
 	public Long getId() {
 		return id;
@@ -77,12 +78,55 @@ public class Artifact implements Serializable {
 		this.version = version;
 	}
 	
-	public List<Dependency> getDependencies() {
+	public List<DependencyEntity> getDependencies() {
 		return dependencies;
 	}
 
-	public void setDependencies(List<Dependency> dependencies) {
+	public void setDependencies(List<DependencyEntity> dependencies) {
 		this.dependencies = dependencies;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((artifactId == null) ? 0 : artifactId.hashCode());
+		result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ArtifactEntity other = (ArtifactEntity) obj;
+		if (artifactId == null) {
+			if (other.artifactId != null)
+				return false;
+		} else if (!artifactId.equals(other.artifactId))
+			return false;
+		if (groupId == null) {
+			if (other.groupId != null)
+				return false;
+		} else if (!groupId.equals(other.groupId))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
+		return true;
+	}
 }

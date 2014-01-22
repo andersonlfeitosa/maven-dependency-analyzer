@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 public abstract class DaoAbstract<T> implements IDao<T>, Closeable {
@@ -39,6 +40,9 @@ public abstract class DaoAbstract<T> implements IDao<T>, Closeable {
 		entityManager.close();
 		entityManagerFactory.close();
 	}
-	
+
+	public EntityTransaction getTransaction() {
+		return entityManager.getTransaction();
+	}
 	
 }

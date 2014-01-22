@@ -5,8 +5,8 @@
   <persistence-unit name="dmpu" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     
-    <class>com.andersonlfeitosa.mavendependencyanalyzer.entity.Artifact</class>
-    <class>com.andersonlfeitosa.mavendependencyanalyzer.entity.Dependency</class>
+    <class>com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity</class>
+    <class>com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity</class>
 
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />

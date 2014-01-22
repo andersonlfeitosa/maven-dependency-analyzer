@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.andersonlfeitosa.mavendependencyanalyzer.dao.DaoFactory;
 import com.andersonlfeitosa.mavendependencyanalyzer.dao.impl.ArtifactDaoImpl;
-import com.andersonlfeitosa.mavendependencyanalyzer.entity.Artifact;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.PomFileReaderAbstract;
 
 public class PomFileReaderDataBaseStrategy extends PomFileReaderAbstract {
@@ -15,8 +15,8 @@ public class PomFileReaderDataBaseStrategy extends PomFileReaderAbstract {
 		execute(file);
 		
 		ArtifactDaoImpl dao = DaoFactory.getInstance().createArtifactDaoImpl();
-		for (Artifact a : artifacts.values()) {
-			dao.add(a);
+		for (ArtifactEntity a : artifacts.values()) {
+			dao.save(a);
 		}
 		
 		try {

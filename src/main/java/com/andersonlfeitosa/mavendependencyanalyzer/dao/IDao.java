@@ -1,17 +1,24 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.dao;
 
 import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.EntityTransaction;
 
 public interface IDao<T> {
 	
-	void add(T e);
+	void save(T e);
 	
 	void update(T e);
 	
 	void delete(T e);
 	
-	void list(T e);
+	List<T> list();
 	
 	T get(Serializable key);
 
+	T find(T filter);
+
+	EntityTransaction getTransaction();
+	
 }
