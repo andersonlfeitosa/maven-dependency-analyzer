@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,8 +31,8 @@ public class ArtifactEntity implements Serializable {
 	@Column(nullable = false)
 	private String artifactId;
 	
-	@Column(nullable = true)
-	private String packaging;
+	@Enumerated (EnumType.STRING)
+	private Packaging packaging;
 	
 	@Column(nullable = false)
 	private String version;
@@ -62,14 +64,6 @@ public class ArtifactEntity implements Serializable {
 		this.artifactId = artifactId;
 	}
 
-	public String getPackaging() {
-		return packaging;
-	}
-
-	public void setPackaging(String packaging) {
-		this.packaging = packaging;
-	}
-
 	public String getVersion() {
 		return version;
 	}
@@ -84,6 +78,14 @@ public class ArtifactEntity implements Serializable {
 
 	public void setDependencies(List<DependencyEntity> dependencies) {
 		this.dependencies = dependencies;
+	}
+	
+	public Packaging getPackaging() {
+		return packaging;
+	}
+
+	public void setPackaging(Packaging packaging) {
+		this.packaging = packaging;
 	}
 
 	@Override
@@ -129,4 +131,5 @@ public class ArtifactEntity implements Serializable {
 			return false;
 		return true;
 	}
+
 }

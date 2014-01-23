@@ -1,6 +1,7 @@
-package com.andersonlfeitosa.mavendependencyanalyzer.xml;
+package com.andersonlfeitosa.mavendependencyanalyzer.xml.object;
 
 import java.util.List;
+import java.util.Map;
 
 public class Project {
 
@@ -13,6 +14,7 @@ public class Project {
 	private Parent parent;
 	private List<String> modules;
 	private List<Dependency> dependencies;
+	private Map<String, Property> properties;
 
 	public String getModelVersion() {
 		return modelVersion;
@@ -84,6 +86,14 @@ public class Project {
 
 	public void setDependencies(List<Dependency> dependencies) {
 		this.dependencies = dependencies;
+	}
+
+	public Map<String, Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Property> properties) {
+		this.properties = properties;
 	}
 
 }

@@ -16,6 +16,9 @@ import org.jdom.input.SAXBuilder;
 
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Packaging;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Scope;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Type;
 
 public abstract class PomFileReaderAbstract implements IPomReader {
 	
@@ -52,7 +55,7 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 			artifact.setGroupId(elRoot.getChildText("groupId", nsPom));
 			artifact.setArtifactId(elRoot.getChildText("artifactId", nsPom));
 			artifact.setVersion(elRoot.getChildText("version", nsPom) == null ? "1.0.0.0-SNAPSHOT" : elRoot.getChildText("version", nsPom));
-			artifact.setPackaging(packaging);
+			artifact.setPackaging(Packaging.valueOf(packaging));
 
 			Element elDependencies = elRoot.getChild("dependencies", nsPom);
 			if (elDependencies != null) {
@@ -62,8 +65,8 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 						DependencyEntity dependency = new DependencyEntity();
 						dependency.setArtifact(artifact);
 						dependency.setClassifier(elDependency.getChildText("classifier", nsPom));
-						dependency.setScope(elDependency.getChildText("scope", nsPom));
-						dependency.setType(elDependency.getChildText("type", nsPom));
+						dependency.setScope(Scope.valueOf(elDependency.getChildText("scope", nsPom)));
+						dependency.setType(Type.valueOf(elDependency.getChildText("type", nsPom)));
 						
 						String groupId = elDependency.getChildText("groupId", nsPom);
 						String artifactId = elDependency.getChildText("artifactId", nsPom);
@@ -75,7 +78,10 @@ public abstract class PomFileReaderAbstract implements IPomReader {
 							artifactDependent.setArtifactId(artifactId);
 							artifactDependent.setGroupId(groupId);
 							artifactDependent.setVersion(version);
-							artifactDependent.setPackaging(getPackaging(dependency.getType(), dependency.getClassifier()));
+							artifactDependent.setPackaging(
+									Packaging.valueOf(
+											getPackaging(dependency.getType().name(), dependency.getClassifier())
+											));
 							artifacts.put(groupId + ":" + artifactId + ":" + version, artifactDependent);
 						}
 						

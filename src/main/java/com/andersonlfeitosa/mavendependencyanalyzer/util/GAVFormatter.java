@@ -1,55 +1,37 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.util;
 
-import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
-import com.andersonlfeitosa.mavendependencyanalyzer.xml.Dependency;
-import com.andersonlfeitosa.mavendependencyanalyzer.xml.Project;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 
 public class GAVFormatter {
 
 	private static final String GAV_SEPARATOR = ":";
+	
+	private static final Log logger = Log.getInstance();
 
-	public static String gavToString(Project project) {
+	public static String gavToString(Object project) {
 		StringBuilder sb = new StringBuilder();
 		
 		if (project != null) {
-			sb.append(project.getGroupId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(project.getArtifactId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(project.getVersion());
+			try {
+				sb.append(BeanUtils.getProperty(project, "groupId"));
+				sb.append(GAV_SEPARATOR);
+				sb.append(BeanUtils.getProperty(project, "artifactId"));
+				sb.append(GAV_SEPARATOR);
+				sb.append(BeanUtils.getProperty(project, "version"));
+			} catch (IllegalAccessException e) {
+				logger.error(e.getMessage(), e);
+			} catch (InvocationTargetException e) {
+				logger.error(e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 		
 		return sb.toString();
 	}
-
-	public static String gavToString(ArtifactEntity artifact) {
-		StringBuilder sb = new StringBuilder();
-		
-		if (artifact != null) {
-			sb.append(artifact.getGroupId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(artifact.getArtifactId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(artifact.getVersion());
-		}
-		
-		return sb.toString();
-	}
-
-	public static Object gavToString(Dependency dependency) {
-		StringBuilder sb = new StringBuilder();
-		
-		if (dependency != null) {
-			sb.append(dependency.getGroupId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(dependency.getArtifactId());
-			sb.append(GAV_SEPARATOR);
-			sb.append(dependency.getVersion());
-		}
-		
-		return sb.toString();
-	}
-	
-	
 
 }

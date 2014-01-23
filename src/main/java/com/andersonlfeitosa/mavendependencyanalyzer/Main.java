@@ -9,6 +9,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 import com.andersonlfeitosa.mavendependencyanalyzer.manager.MavenDependencyAnalyzer;
 
 
@@ -26,7 +27,11 @@ public class Main {
 			CommandLine line = parser.parse(options, args);
 			String directory = line.getOptionValue("d");
 			boolean debug = line.hasOption("v");
-			// TODO set debug mode
+			
+			if (debug) {
+				Log.getInstance().setDebug();
+			}
+			
 			MavenDependencyAnalyzer.getInstance().execute(directory);
 		} catch (ParseException e) {
 			HelpFormatter formatter = new HelpFormatter();

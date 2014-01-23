@@ -16,11 +16,15 @@ import org.apache.commons.io.FileUtils;
 
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Packaging;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Scope;
+import com.andersonlfeitosa.mavendependencyanalyzer.entity.Type;
 import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 import com.andersonlfeitosa.mavendependencyanalyzer.util.GAVFormatter;
-import com.andersonlfeitosa.mavendependencyanalyzer.xml.Dependency;
-import com.andersonlfeitosa.mavendependencyanalyzer.xml.Parent;
-import com.andersonlfeitosa.mavendependencyanalyzer.xml.Project;
+import com.andersonlfeitosa.mavendependencyanalyzer.xml.converter.PropertyConverter;
+import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Dependency;
+import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Parent;
+import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Project;
 import com.thoughtworks.xstream.XStream;
 
 public class MavenDependencyAnalyzer {
@@ -38,9 +42,16 @@ public class MavenDependencyAnalyzer {
 		return instance;
 	}
 
-	public void execute(String directory) {
-		readPom(createXStream(), null, createFile(directory, "/pom.xml"));
-		persistObjects();
+	public void execute(String fileOrDirectory) {
+		File f = createFile(fileOrDirectory);
+		
+		if (f.isDirectory()) {
+			
+		}
+		
+		
+		readPom(createXStream(), null, createFile(fileOrDirectory, "/pom.xml"));
+//		persistObjects();
 	}
 
 	private void persistObjects() {
@@ -53,7 +64,7 @@ public class MavenDependencyAnalyzer {
 			ArtifactEntity artifact = new ArtifactEntity();
 			artifact.setArtifactId(project.getArtifactId());
 			artifact.setGroupId(project.getGroupId());
-			artifact.setPackaging(project.getPackaging());
+			artifact.setPackaging(Packaging.valueOf(project.getPackaging()));
 			artifact.setVersion(project.getVersion());
 
 			entityManager.persist(artifact);
@@ -64,8 +75,8 @@ public class MavenDependencyAnalyzer {
 					dependency.setArtifact(artifact);
 					dependency.setClassifier(dep.getClassifier());
 					dependency.setDependency(findArtifactOrCreate(entityManager, dep));
-					dependency.setScope(dep.getScope());
-					dependency.setType(dep.getType());					
+					dependency.setScope(Scope.valueOf(dep.getScope()));
+					dependency.setType(Type.valueOf(dep.getType()));
 					artifact.getDependencies().add(dependency);
 					
 					entityManager.persist(dependency);
@@ -128,9 +139,11 @@ public class MavenDependencyAnalyzer {
 		xstream.alias("parent", Parent.class);
 		xstream.alias("module", String.class);
 		xstream.alias("dependency", Dependency.class);
-
+		
+		xstream.registerLocalConverter(Project.class, "properties", new PropertyConverter());
+		
 		xstream.omitField(Project.class, "scm");
-		xstream.omitField(Project.class, "properties");
+//		xstream.omitField(Project.class, "properties");
 		xstream.omitField(Project.class, "dependencyManagement");
 		xstream.omitField(Project.class, "build");
 		xstream.omitField(Parent.class, "relativePath");

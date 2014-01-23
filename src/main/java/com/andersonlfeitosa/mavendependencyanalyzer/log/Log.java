@@ -1,7 +1,8 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.log;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class Log {
 	
@@ -14,7 +15,7 @@ public class Log {
 	}
 	
 	private void initLogger() {
-		BasicConfigurator.configure();
+		PropertyConfigurator.configure(getClass().getClassLoader().getResourceAsStream("log4j.properties"));
 		logger = Logger.getLogger("com.andersonlfeitosa.mavendependencyanalyzer");
 	}
 
@@ -68,6 +69,10 @@ public class Log {
 
 	public void warn(Object message, Throwable t) {
 		logger.warn(message, t);
+	}
+
+	public void setDebug() {
+		logger.setLevel(Level.DEBUG);
 	}
 	
 }

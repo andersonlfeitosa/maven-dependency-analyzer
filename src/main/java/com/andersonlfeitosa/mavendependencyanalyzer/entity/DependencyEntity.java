@@ -5,6 +5,8 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,7 +17,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "DEPENDENCY")
 public class DependencyEntity implements Serializable {
-
+	
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -27,18 +29,18 @@ public class DependencyEntity implements Serializable {
 	@JoinColumn(name = "idArtifact", referencedColumnName = "idArtifact")
 	private ArtifactEntity artifact;
 
-	@ManyToOne (cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "idArtifactDependentOn", referencedColumnName = "idArtifact")
 	private ArtifactEntity dependency;
 
-	@Column(nullable = true)
-	private String scope;
+	@Enumerated(EnumType.STRING)
+	private Scope scope;
 
 	@Column(nullable = true)
 	private String classifier;
 
-	@Column(nullable = true)
-	private String type;
+	@Enumerated(EnumType.STRING)
+	private Type type;
 
 	public Long getId() {
 		return id;
@@ -46,14 +48,6 @@ public class DependencyEntity implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getScope() {
-		return scope;
-	}
-
-	public void setScope(String scope) {
-		this.scope = scope;
 	}
 
 	public String getClassifier() {
@@ -64,14 +58,6 @@ public class DependencyEntity implements Serializable {
 		this.classifier = classifier;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-	
 	public ArtifactEntity getDependency() {
 		return dependency;
 	}
@@ -86,6 +72,22 @@ public class DependencyEntity implements Serializable {
 
 	public void setArtifact(ArtifactEntity artifact) {
 		this.artifact = artifact;
+	}
+
+	public Scope getScope() {
+		return scope;
+	}
+
+	public void setScope(Scope scope) {
+		this.scope = scope;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.andersonlfeitosa.mavendependencyanalyzer.xml;
+package com.andersonlfeitosa.mavendependencyanalyzer.xml.object;
 
 public class Parent {
 

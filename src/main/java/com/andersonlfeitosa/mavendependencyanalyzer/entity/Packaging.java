@@ -8,6 +8,10 @@ public enum Packaging {
 	
 	EAR,
 	
-	EJB
+	EJB,
+	
+	SWF,
+	
+	SWC
 
 }
