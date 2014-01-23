@@ -122,4 +122,11 @@ public class DependencyEntity implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "DependencyEntity [artifact=" + artifact + ", dependency="
+				+ dependency + ", scope=" + scope + ", classifier="
+				+ classifier + ", type=" + type + "]";
+	}
+
 }

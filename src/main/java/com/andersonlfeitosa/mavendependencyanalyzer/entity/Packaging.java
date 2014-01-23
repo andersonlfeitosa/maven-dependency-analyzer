@@ -2,6 +2,8 @@ package com.andersonlfeitosa.mavendependencyanalyzer.entity;
 
 public enum Packaging {
 	
+	POM, 
+	
 	JAR,
 	
 	WAR,

@@ -15,6 +15,7 @@ public class Project {
 	private List<String> modules;
 	private List<Dependency> dependencies;
 	private Map<String, Property> properties;
+	private DependencyManagement dependencyManagement;
 
 	public String getModelVersion() {
 		return modelVersion;
@@ -94,6 +95,14 @@ public class Project {
 
 	public void setProperties(Map<String, Property> properties) {
 		this.properties = properties;
+	}
+
+	public DependencyManagement getDependencyManagement() {
+		return dependencyManagement;
+	}
+
+	public void setDependencyManagement(DependencyManagement dependencyManagement) {
+		this.dependencyManagement = dependencyManagement;
 	}
 
 }

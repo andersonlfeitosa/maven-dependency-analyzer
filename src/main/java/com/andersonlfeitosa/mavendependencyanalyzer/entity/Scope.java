@@ -10,6 +10,8 @@ public enum Scope {
 	
 	RUNTIME,
 	
-	SYSTEM
+	SYSTEM,
+	
+	EXTERNAL
 
 }

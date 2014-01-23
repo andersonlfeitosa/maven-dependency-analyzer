@@ -34,7 +34,7 @@ public class ArtifactEntity implements Serializable {
 	@Enumerated (EnumType.STRING)
 	private Packaging packaging;
 	
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String version;
 	
 	@OneToMany(mappedBy = "dependency")
@@ -130,6 +130,13 @@ public class ArtifactEntity implements Serializable {
 		} else if (!version.equals(other.version))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ArtifactEntity [groupId=" + groupId + ", artifactId="
+				+ artifactId + ", packaging=" + packaging + ", version="
+				+ version + "]";
 	}
 
 }
