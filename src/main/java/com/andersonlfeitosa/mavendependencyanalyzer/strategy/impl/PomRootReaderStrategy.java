@@ -31,6 +31,8 @@ public class PomRootReaderStrategy implements IPomReader {
 	
 	private Map<String, Project> poms = new HashMap<String, Project>();
 	
+	private Project root;
+	
 	private Map<String, Property> properties = new HashMap<String, Property>();
 
 	@Override
@@ -41,9 +43,15 @@ public class PomRootReaderStrategy implements IPomReader {
 
 	private void readPom(XStream xstream, Project parent, File file) {
 		logger.info("processing pom file " + file.getAbsolutePath());
+		
 		try {
 			String sfile = FileUtils.readFileToString(file);
 			Project project = (Project) xstream.fromXML(sfile);
+			
+			if (parent == null) {
+				logger.info("setting the root pom file");
+				this.root = project;
+			}
 			
 			if (project.getProperties() != null) {
 				properties.putAll(project.getProperties());
@@ -129,6 +137,7 @@ public class PomRootReaderStrategy implements IPomReader {
 	}
 	
 	private void setVersion(Project project, Project parent) {
+		// TODO setting groupId to project if your value is ${project.version}
 		if (project.getVersion() == null) {
 			if (parent != null && project.getParent().getVersion() == null) {
 				logger.warn("setting version " + parent.getVersion() + " from the parent pom.xml to artifactId " + project.getArtifactId());
@@ -141,6 +150,7 @@ public class PomRootReaderStrategy implements IPomReader {
 	}
 
 	private void setGroupId(Project project, Project parent) {
+		// TODO setting groupId to project if your value is ${project.groupId}
 		if (project.getGroupId() == null) {
 			if (parent != null && project.getParent().getGroupId() == null) {
 				logger.warn("setting groupId " + parent.getGroupId() + " from the parent pom.xml to artifactId " + project.getArtifactId());
@@ -150,6 +160,11 @@ public class PomRootReaderStrategy implements IPomReader {
 				project.setGroupId(project.getParent().getGroupId());
 			}
 		}
+	}
+
+	@Override
+	public Project getRoot() {
+		return root;
 	}
 
 }

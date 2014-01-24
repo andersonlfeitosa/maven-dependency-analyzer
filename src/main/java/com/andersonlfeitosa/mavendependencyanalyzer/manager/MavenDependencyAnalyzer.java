@@ -36,7 +36,13 @@ public class MavenDependencyAnalyzer {
 	}
 
 	public void execute(String fileOrDirectory) {
-		persistObjects(createPomReader(new File(fileOrDirectory).isDirectory()).read(new File(fileOrDirectory)));
+		Map<String, Project> poms = 
+				createPomReader(new File(fileOrDirectory).isDirectory()).read(new File(fileOrDirectory));
+		
+		//TODO to be implemented
+		
+		
+		//persistObjects(poms);
 	}
 
 	private IPomReader createPomReader(boolean directory) {
@@ -53,11 +59,14 @@ public class MavenDependencyAnalyzer {
 			ArtifactEntity artifact = new ArtifactEntity();
 			artifact.setArtifactId(project.getArtifactId());
 			artifact.setGroupId(project.getGroupId());
-			artifact.setPackaging(Packaging.valueOf(project.getPackaging().toUpperCase()));
+			artifact.setPackaging(Packaging.getPackaging(project.getPackaging()));
 			artifact.setVersion(project.getVersion());
 
-			logger.debug(artifact);
-			entityManager.persist(artifact);
+			// TODO delete, in future
+//			if (artifact.getVersion() != null) {
+				logger.debug(artifact);
+				entityManager.persist(artifact);
+//			}
 			
 			if (project.getDependencies() != null) {
 				for (Dependency dep : project.getDependencies()) {
@@ -65,17 +74,21 @@ public class MavenDependencyAnalyzer {
 					dependency.setArtifact(artifact);
 					dependency.setClassifier(dep.getClassifier());
 					dependency.setDependency(findArtifactOrCreate(entityManager, dep));
-					dependency.setScope(Scope.valueOf(dep.getScope().toUpperCase()));
-					dependency.setType(Type.getType(dep.getType().toUpperCase()));
+					dependency.setScope(Scope.getScope(dep.getScope()));
+					dependency.setType(Type.getType(dep.getType()));
 					artifact.getDependencies().add(dependency);
 					
-					logger.debug(dependency);
-					entityManager.persist(dependency);
+//					if (dependency.getDependency().getVersion() != null) {
+						logger.debug(dependency);
+						entityManager.persist(dependency);
+//					}
 				}
 			}
-			
-			logger.debug(artifact);
-			entityManager.persist(artifact);
+
+//			if (artifact.getVersion() != null) {
+				logger.debug(artifact);
+				entityManager.persist(artifact);
+//			}
 		}
 		
 		transaction.commit();

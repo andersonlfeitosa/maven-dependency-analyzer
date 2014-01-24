@@ -2,18 +2,44 @@ package com.andersonlfeitosa.mavendependencyanalyzer.entity;
 
 public enum Packaging {
 	
-	POM, 
+	POM ("pom"), 
 	
-	JAR,
+	JAR ("jar"),
 	
-	WAR,
+	WAR ("war"),
 	
-	EAR,
+	EAR ("ear"),
 	
-	EJB,
+	EJB ("ejb"),
 	
-	SWF,
+	SWF ("swf"),
 	
-	SWC
+	SWC ("swc");
+	
+	private String value;
+	
+	Packaging(String value) {
+		this.value = value;
+	}
 
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public static Packaging getPackaging(String value) {
+		Packaging result = null;
+		for (Packaging t : Packaging.values()) {
+			if (t.getValue().equalsIgnoreCase(value)) {
+				result = t;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 }

@@ -9,5 +9,7 @@ import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Project;
 public interface IPomReader {
 	
 	Map<String, Project> read(File file);
+
+	public abstract Project getRoot();
 	
 }

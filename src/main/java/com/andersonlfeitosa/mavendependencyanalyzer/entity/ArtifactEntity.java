@@ -13,30 +13,32 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table (name = "ARTIFACT")
+@Table(name = "ARTIFACT", uniqueConstraints = { @UniqueConstraint(columnNames = {
+		"artifactId", "groupId", "version" }) })
 public class ArtifactEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue (strategy = GenerationType.IDENTITY)
-	@Column (name = "idArtifact")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idArtifact")
 	private Long id;
-	
+
 	@Column(nullable = false)
 	private String groupId;
-	
+
 	@Column(nullable = false)
 	private String artifactId;
-	
-	@Enumerated (EnumType.STRING)
+
+	@Enumerated(EnumType.STRING)
 	private Packaging packaging;
-	
-	@Column(nullable = true)
+
+	@Column(nullable = false)
 	private String version;
-	
+
 	@OneToMany(mappedBy = "dependency")
 	private List<DependencyEntity> dependencies = new ArrayList<DependencyEntity>();
 
@@ -71,7 +73,7 @@ public class ArtifactEntity implements Serializable {
 	public void setVersion(String version) {
 		this.version = version;
 	}
-	
+
 	public List<DependencyEntity> getDependencies() {
 		return dependencies;
 	}
@@ -79,7 +81,7 @@ public class ArtifactEntity implements Serializable {
 	public void setDependencies(List<DependencyEntity> dependencies) {
 		this.dependencies = dependencies;
 	}
-	
+
 	public Packaging getPackaging() {
 		return packaging;
 	}

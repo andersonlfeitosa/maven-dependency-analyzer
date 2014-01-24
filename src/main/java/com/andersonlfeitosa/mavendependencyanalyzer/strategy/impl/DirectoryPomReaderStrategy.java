@@ -14,4 +14,9 @@ public class DirectoryPomReaderStrategy implements IPomReader {
 		return null;
 	}
 
+	public Project getRoot() {
+		// TODO to be implemented
+		return null;
+	}
+
 }

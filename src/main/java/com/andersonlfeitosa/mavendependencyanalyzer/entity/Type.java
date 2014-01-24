@@ -2,35 +2,45 @@ package com.andersonlfeitosa.mavendependencyanalyzer.entity;
 
 public enum Type {
 	
-	POM,
+	POM ("pom"),
 	
-	JAR,
+	JAR ("jar"),
 	
-	WAR,
+	WAR ("war"),
 	
-	EAR,
+	EAR ("ear"),
 	
-	EJB_CLIENT,
+	EJB_CLIENT ("ejb-client"),
 	
-	SWF,
+	SWF ("swf"),
 	
-	SWC, 
+	SWC ("swc"),  
 	
-	RB_SWC;
+	RB_SWC ("rb.swc");
 	
-	public static Type getType(String type) {
+	private String value;
+	
+	Type(String value) {
+		this.value = value;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public static Type getType(String value) {
+		Type result = null;
 		for (Type t : Type.values()) {
-			if (t.name().equalsIgnoreCase(type)) {
-				return t;
-			} else if (type != null && type.equalsIgnoreCase("ejb-client")) {
-				return t.EJB_CLIENT;
-			} else if (type.equalsIgnoreCase("rb.swc")) {
-				return t.RB_SWC;
+			if (t.getValue().equalsIgnoreCase(value)) {
+				result = t;
+				break;
 			}
 		}
 		
-		return null;
+		return result;
 	}
-	
-
 }
