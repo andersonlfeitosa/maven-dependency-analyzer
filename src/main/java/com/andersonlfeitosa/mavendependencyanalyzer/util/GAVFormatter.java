@@ -14,14 +14,17 @@ public class GAVFormatter {
 
 	public static String gavToString(Object project) {
 		StringBuilder sb = new StringBuilder();
+		String property = null;
 		
 		if (project != null) {
 			try {
-				sb.append(BeanUtils.getProperty(project, "groupId"));
+				property = BeanUtils.getProperty(project, "groupId");
+				writeProperty(sb, property);
 				sb.append(GAV_SEPARATOR);
-				sb.append(BeanUtils.getProperty(project, "artifactId"));
+				property = BeanUtils.getProperty(project, "artifactId");
+				writeProperty(sb, property);
 				sb.append(GAV_SEPARATOR);
-				sb.append(BeanUtils.getProperty(project, "version"));
+				property = BeanUtils.getProperty(project, "version");
 			} catch (IllegalAccessException e) {
 				logger.error(e.getMessage(), e);
 			} catch (InvocationTargetException e) {
@@ -32,6 +35,12 @@ public class GAVFormatter {
 		}
 		
 		return sb.toString();
+	}
+
+	private static void writeProperty(StringBuilder sb, String property) {
+		if (property != null) {
+			sb.append(property);
+		}
 	}
 
 }

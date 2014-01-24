@@ -15,10 +15,15 @@ import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Packaging;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Scope;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Type;
+import com.andersonlfeitosa.mavendependencyanalyzer.graphviz.Digraph;
+import com.andersonlfeitosa.mavendependencyanalyzer.graphviz.Graph;
+import com.andersonlfeitosa.mavendependencyanalyzer.graphviz.GraphvizEngine;
+import com.andersonlfeitosa.mavendependencyanalyzer.graphviz.Node;
 import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.IPomReader;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.impl.DirectoryPomReaderStrategy;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.impl.PomRootReaderStrategy;
+import com.andersonlfeitosa.mavendependencyanalyzer.util.GAVFormatter;
 import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Dependency;
 import com.andersonlfeitosa.mavendependencyanalyzer.xml.object.Project;
 
@@ -36,13 +41,49 @@ public class MavenDependencyAnalyzer {
 	}
 
 	public void execute(String fileOrDirectory) {
-		Map<String, Project> poms = 
-				createPomReader(new File(fileOrDirectory).isDirectory()).read(new File(fileOrDirectory));
-		
-		//TODO to be implemented
-		
-		
+		File file = new File(fileOrDirectory);
+		IPomReader reader = createPomReader(file.isDirectory());
+		Map<String, Project> poms = reader.read(file);
+		Project project = reader.getRoot();
+		plot(project, poms);
 		//persistObjects(poms);
+	}
+
+	private void plot(Project project, Map<String, Project> poms) {
+		Graph graph = doChart(null, null, project, poms);
+
+		GraphvizEngine engine = new GraphvizEngine(graph);
+		engine.addType("png");
+		engine.toFilePath("helloworld.png");
+		engine.output();
+		
+	}
+
+	private Graph doChart(Graph graph, Node node, Project project, Map<String, Project> poms) {
+		if (graph == null) {
+			graph = new Digraph("chart");
+		}
+		
+		if (node == null) {
+			node = graph.addNode(project.getArtifactId());
+		}
+		
+		if (project.getModules() != null) {
+			for (String module : project.getModules()) {
+				Node nodeModule = graph.addNode(module);
+				graph.addEdge(node, nodeModule);
+			}
+		}
+		
+		if (project.getDependencies() != null) {
+			for (Dependency dependency : project.getDependencies()) {
+				Node nodeDependency = graph.addNode(GAVFormatter.gavToString(dependency));
+				graph.addEdge(node, nodeDependency);
+				doChart(graph, node, project, poms);
+			}
+		}
+		
+		return graph;
 	}
 
 	private IPomReader createPomReader(boolean directory) {
