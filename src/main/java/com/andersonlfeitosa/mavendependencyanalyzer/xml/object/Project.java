@@ -1,5 +1,6 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.xml.object;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,13 @@ public class Project {
 	private List<Dependency> dependencies;
 	private Map<String, Property> properties;
 	private DependencyManagement dependencyManagement;
+
+	/*
+	 * transient attributes
+	 */
+	private Project aggregatorProject;
+	private Project parentProject;
+	private File pom;
 
 	public String getModelVersion() {
 		return modelVersion;
@@ -103,6 +111,30 @@ public class Project {
 
 	public void setDependencyManagement(DependencyManagement dependencyManagement) {
 		this.dependencyManagement = dependencyManagement;
+	}
+
+	public Project getAggregatorProject() {
+		return aggregatorProject;
+	}
+
+	public void setAggregatorProject(Project aggregatorProject) {
+		this.aggregatorProject = aggregatorProject;
+	}
+
+	public Project getParentProject() {
+		return parentProject;
+	}
+
+	public void setParentProject(Project parentProject) {
+		this.parentProject = parentProject;
+	}
+
+	public File getPom() {
+		return pom;
+	}
+
+	public void setPom(File pom) {
+		this.pom = pom;
 	}
 
 }

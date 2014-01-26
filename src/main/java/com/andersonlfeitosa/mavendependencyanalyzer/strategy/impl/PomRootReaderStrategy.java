@@ -33,34 +33,31 @@ public class PomRootReaderStrategy implements IPomReader {
 	
 	private Project root;
 	
-	private Map<String, Property> properties = new HashMap<String, Property>();
-
 	@Override
 	public Map<String, Project> read(File file) { 
 		readPom(XStreamConfigurator.createXStream(), null, file);
 		return poms;
 	}
 
-	private void readPom(XStream xstream, Project parent, File file) {
+	private void readPom(XStream xstream, Project aggregatorProject, File file) {
 		logger.info("processing pom file " + file.getAbsolutePath());
 		
 		try {
 			String sfile = FileUtils.readFileToString(file);
 			Project project = (Project) xstream.fromXML(sfile);
+			project.setPom(file);
+			deduce(project);
 			
-			if (parent == null) {
+			if (aggregatorProject == null) {
 				logger.info("setting the root pom file");
 				this.root = project;
+			} else {
+				project.setAggregatorProject(aggregatorProject);
+				Project projectParent = poms.get(GAVFormatter.gavToString(project.getParent()));
+				project.setParentProject(projectParent);
 			}
 			
-			if (project.getProperties() != null) {
-				properties.putAll(project.getProperties());
-			}
-			
-			setGroupId(project, parent);
-			setVersion(project, parent);
 			setInformationForDependencies(project);
-			
 			replaceVariablesOfProject(project);
 			
 			poms.put(GAVFormatter.gavToString(project), project);
@@ -74,29 +71,63 @@ public class PomRootReaderStrategy implements IPomReader {
 		}
 	}
 
+	private void deduce(Project project) {
+		if ((project.getGroupId() == null || project.getGroupId().equals("${project.groupId}")) && project.getParent().getGroupId() != null) {
+			logger.warn("setting groupId " + project.getParent().getGroupId() + " from the parent tag to pom " + project.getPom().getAbsolutePath());
+			project.setGroupId(project.getParent().getGroupId());
+		}
+		
+		if ((project.getArtifactId() == null || project.getArtifactId().equals("${project.artifactId}")) && project.getParent().getArtifactId() != null)  {
+			logger.warn("setting artifactId " + project.getParent().getArtifactId() + " from the parent tag to pom " + project.getPom().getAbsolutePath());
+			project.setArtifactId(project.getParent().getArtifactId());
+		}
+		
+		if ((project.getVersion() == null || project.getVersion().equals("${project.version}")) && project.getParent().getVersion() != null)  {
+			logger.warn("setting version " + project.getParent().getVersion() + " from the parent tag to pom " + project.getPom().getAbsolutePath());
+			project.setVersion(project.getParent().getVersion());
+		}
+		
+		if (project.getProperties() == null) {
+			if (project.getParentProject() != null) {
+				logger.info("setting properties to project");
+				project.setProperties(project.getParentProject().getProperties());
+			}
+		} else {
+			if (project.getParentProject() != null && project.getParentProject().getProperties() != null) {
+				logger.info("adding properties to project");
+				project.getProperties().putAll(project.getParentProject().getProperties());
+				
+			}
+		}
+		
+		if (project.getDependencyManagement() == null) {
+			logger.info("setting ");
+		}
+	}
+
 	private void replaceVariablesOfProject(Project project) {
-		project.setArtifactId(replaceVariable(project.getArtifactId()));
-		project.setVersion(replaceVariable(project.getVersion()));
-		project.setGroupId(replaceVariable(project.getGroupId()));
+		project.setArtifactId(replaceVariable(project.getArtifactId(), project.getProperties()));
+		project.setVersion(replaceVariable(project.getVersion(), project.getProperties()));
+		project.setGroupId(replaceVariable(project.getGroupId(), project.getProperties()));
 
 		if (project.getDependencies() != null) {
 			for (Dependency dependency : project.getDependencies()) {
-				dependency.setArtifactId(replaceVariable(dependency.getArtifactId()));
-				dependency.setGroupId(replaceVariable(dependency.getGroupId()));
-				dependency.setVersion(replaceVariable(dependency.getVersion()));
+				dependency.setArtifactId(replaceVariable(dependency.getArtifactId(), project.getProperties()));
+				dependency.setGroupId(replaceVariable(dependency.getGroupId(), project.getProperties()));
+				dependency.setVersion(replaceVariable(dependency.getVersion(), project.getProperties()));
 			}
 		}
 		
 		if (project.getDependencyManagement() != null && project.getDependencyManagement().getDependencies() != null) {
 			for (Dependency dependency : project.getDependencyManagement().getDependencies()) {
-				dependency.setArtifactId(replaceVariable(dependency.getArtifactId()));
-				dependency.setGroupId(replaceVariable(dependency.getGroupId()));
-				dependency.setVersion(replaceVariable(dependency.getVersion()));
+				dependency.setArtifactId(replaceVariable(dependency.getArtifactId(), project.getProperties()));
+				dependency.setGroupId(replaceVariable(dependency.getGroupId(), project.getProperties()));
+				dependency.setVersion(replaceVariable(dependency.getVersion(), project.getProperties()));
 			}
 		}
 	}
 
-	public String replaceVariable(String text) {
+	public String replaceVariable(String text, Map<String, Property> properties) {
 		String replaced = text;
 
 		if (text != null) {
@@ -108,11 +139,13 @@ public class PomRootReaderStrategy implements IPomReader {
 			
 			Property property = null;
 			for (String propertyName : variables) {
-				property = properties.get(property);
-				if (property != null) {
-					String value = property.getValue();
-					replaced = replaced.replaceAll("\\$\\{" + propertyName + "\\}", StringEscapeUtils.escapeJava(value));
-					logger.debug("replace variable " + text + " for " + replaced);
+				if (properties != null) {
+					property = properties.get(property);
+					if (property != null) {
+						String value = property.getValue();
+						replaced = replaced.replaceAll("\\$\\{" + propertyName + "\\}", StringEscapeUtils.escapeJava(value));
+						logger.debug("replace variable " + text + " for " + replaced);
+					}
 				}
 			}
 			
@@ -131,37 +164,15 @@ public class PomRootReaderStrategy implements IPomReader {
 				
 				if (dependency.getType() == null) {
 					dependency.setType(Type.JAR.name());
-				}  
+				} 
+				
+				if (dependency.getClassifier() != null && dependency.getClassifier().equalsIgnoreCase("client")) {
+					dependency.setType(Type.EJB_CLIENT.name());
+				}
 			}
 		}
 	}
 	
-	private void setVersion(Project project, Project parent) {
-		// TODO setting groupId to project if your value is ${project.version}
-		if (project.getVersion() == null) {
-			if (parent != null && project.getParent().getVersion() == null) {
-				logger.warn("setting version " + parent.getVersion() + " from the parent pom.xml to artifactId " + project.getArtifactId());
-				project.setVersion(parent.getVersion());
-			} else {
-				logger.warn("setting version " + project.getParent().getVersion() + " from the parent tag to artifactId " + project.getArtifactId());
-				project.setVersion(project.getParent().getVersion());
-			}
-		}
-	}
-
-	private void setGroupId(Project project, Project parent) {
-		// TODO setting groupId to project if your value is ${project.groupId}
-		if (project.getGroupId() == null) {
-			if (parent != null && project.getParent().getGroupId() == null) {
-				logger.warn("setting groupId " + parent.getGroupId() + " from the parent pom.xml to artifactId " + project.getArtifactId());
-				project.setGroupId(parent.getGroupId());
-			} else {
-				logger.warn("setting groupId " + project.getParent().getGroupId() + " from the parent tag to artifactId " + project.getArtifactId());
-				project.setGroupId(project.getParent().getGroupId());
-			}
-		}
-	}
-
 	@Override
 	public Project getRoot() {
 		return root;

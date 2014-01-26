@@ -44,9 +44,9 @@ public class MavenDependencyAnalyzer {
 		File file = new File(fileOrDirectory);
 		IPomReader reader = createPomReader(file.isDirectory());
 		Map<String, Project> poms = reader.read(file);
-		Project project = reader.getRoot();
-		plot(project, poms);
-		//persistObjects(poms);
+//		Project project = reader.getRoot();
+//		plot(project, poms);
+		persistObjects(poms);
 	}
 
 	private void plot(Project project, Map<String, Project> poms) {
