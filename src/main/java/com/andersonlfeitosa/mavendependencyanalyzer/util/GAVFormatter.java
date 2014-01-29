@@ -25,6 +25,7 @@ public class GAVFormatter {
 				writeProperty(sb, property);
 				sb.append(GAV_SEPARATOR);
 				property = BeanUtils.getProperty(project, "version");
+				writeProperty(sb, property);
 			} catch (IllegalAccessException e) {
 				logger.error(e.getMessage(), e);
 			} catch (InvocationTargetException e) {

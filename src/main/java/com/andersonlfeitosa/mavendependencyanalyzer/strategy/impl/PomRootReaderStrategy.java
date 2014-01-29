@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -47,17 +46,12 @@ public class PomRootReaderStrategy implements IPomReader {
 		try {
 			String sfile = FileUtils.readFileToString(file);
 			Project project = (Project) xstream.fromXML(sfile);
-			project.setPom(file);
-			
-			if (aggregatorProject == null) {
-				logger.info("setting the root pom file");
-				this.root = project;
-			} else {
-				project.setAggregatorProject(aggregatorProject);
-				Project projectParent = poms.get(GAVFormatter.gavToString(project.getParent()));
-				project.setParentProject(projectParent);
-			}
-
+			setPomFile(project, file);
+			setRootProject(aggregatorProject, project);
+			setAggregatorProject(aggregatorProject, project);
+			setParentProject(project);
+			setProperties(project);			
+			setDependencyManagement(project);
 			deduce(project);
 			setInformationForDependencies(project);
 			replaceVariablesOfProject(project);
@@ -71,6 +65,26 @@ public class PomRootReaderStrategy implements IPomReader {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	private void setPomFile(Project project, File file) {
+		project.setPom(file);		
+	}
+
+	private void setRootProject(Project aggregatorProject, Project project) {
+		if (aggregatorProject == null) {
+			logger.info("setting the root pom file");
+			this.root = project;
+		} 
+	}
+
+	private void setAggregatorProject(Project aggregatorProject, Project project) {
+		project.setAggregatorProject(aggregatorProject);
+	}
+
+	private void setParentProject(Project project) {
+		Project projectParent = poms.get(GAVFormatter.gavToString(project.getParent()));
+		project.setParentProject(projectParent);
 	}
 
 	private void deduce(Project project) {
@@ -89,36 +103,34 @@ public class PomRootReaderStrategy implements IPomReader {
 			project.setVersion(project.getParent().getVersion());
 		}
 		
-		if (project.getProperties() == null) {
-			if (project.getParentProject() != null) {
-				logger.info("setting properties to project");
-				project.setProperties(project.getParentProject().getProperties());
-			}
-		} else {
-			if (project.getParentProject() != null && project.getParentProject().getProperties() != null) {
-				logger.info("adding properties to project");
-				//FIXME this method need be fix to inverse
-				project.getProperties().putAll(project.getParentProject().getProperties());
-				
-			}
-		}
-		
-		if (project.getDependencyManagement() == null) {
-			logger.info("setting dependency management");
-			if (project.getParentProject() != null) {
+		project.getProperties().put("${project.groupId}", new Property("${project.groupId}", project.getGroupId()));
+		project.getProperties().put("${project.artifactId}", new Property("${project.artifactId}", project.getArtifactId()));
+		project.getProperties().put("${project.version}", new Property("${project.version}", project.getVersion()));
+	}
+
+	private void setDependencyManagement(Project project) {
+		if (project.getParentProject() != null && project.getParentProject().getDependencyManagement() != null) {
+			if (project.getDependencyManagement() == null) {
+				logger.info("setting dependency management");
 				project.setDependencyManagement(project.getParentProject().getDependencyManagement());
 			} else {
-				if (project.getParentProject() != null 
-						&& project.getParentProject().getDependencyManagement() != null) {
-					
-					project.getDependencyManagement().setDependencies(
-							(Set<Dependency>) CollectionUtils.union(
-									project.getParentProject().getDependencyManagement().getDependencies(), 
-									project.getDependencyManagement().getDependencies()));
-					
-				}
+				logger.info("adding dependencies to project");
+//				TODO 
+//				project.getDependencyManagement().setDependencies((Set<Dependency>) CollectionUtils.union(project.getParentProject().getDependencyManagement().getDependencies(), project.getDependencyManagement().getDependencies()));
 			}
-			
+		}
+	}
+
+	private void setProperties(Project project) {
+		if (project.getParentProject() != null && project.getParentProject().getProperties() != null) {
+			if (project.getProperties() == null) {
+				logger.info("setting properties to project");
+				project.setProperties(project.getParentProject().getProperties());
+			} else {
+				logger.info("adding properties to project");
+//				TODO 
+//				project.setProperties(CollectionUtils.union(project.getProperties(), project.getParentProject().getProperties()));
+			}
 		}
 	}
 
@@ -161,9 +173,12 @@ public class PomRootReaderStrategy implements IPomReader {
 					property = properties.get(propertyName);
 					if (property != null) {
 						String value = property.getValue();
-						logger.debug("init replace variable " + text + " for " + value);
-						replaced = replaced.replaceAll("\\$\\{" + propertyName + "\\}", StringEscapeUtils.escapeJava(value));
-						logger.debug("replace variable " + text + " for " + replaced);
+						Matcher otherVariable = PATTERN_VARIABLE.matcher(replaced);
+						if (!otherVariable.find()) {
+							logger.debug("init replace variable " + text + " for " + value);
+							replaced = replaced.replaceAll("\\$\\{" + propertyName + "\\}", StringEscapeUtils.escapeJava(value));
+							logger.debug("replace variable " + text + " for " + replaced);
+						}
 					}
 				}
 			}
