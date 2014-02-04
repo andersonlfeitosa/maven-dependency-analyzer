@@ -49,12 +49,14 @@ public class PomRootReaderStrategy implements IPomReader {
 			setPomFile(project, file);
 			setRootProject(aggregatorProject, project);
 			setAggregatorProject(aggregatorProject, project);
-			setParentProject(project);
-			setProperties(project);			
+			setParentProject(project); // TODO could use variable
+			setProperties(project); 
 			setDependencyManagement(project);
 			deduce(project);
-			setInformationForDependencies(project);
 			replaceVariablesOfProject(project);
+			setInformationForDependencies(project);
+			
+			// TODO use the properties inside project
 			
 			poms.put(GAVFormatter.gavToString(project), project);
 			if (project.getModules() != null && !project.getModules().isEmpty()) {
@@ -103,9 +105,9 @@ public class PomRootReaderStrategy implements IPomReader {
 			project.setVersion(project.getParent().getVersion());
 		}
 		
-		project.getProperties().put("${project.groupId}", new Property("${project.groupId}", project.getGroupId()));
-		project.getProperties().put("${project.artifactId}", new Property("${project.artifactId}", project.getArtifactId()));
-		project.getProperties().put("${project.version}", new Property("${project.version}", project.getVersion()));
+		project.getProperties().put("project.groupId", new Property("project.groupId", project.getGroupId()));
+		project.getProperties().put("project.artifactId", new Property("project.artifactId", project.getArtifactId()));
+		project.getProperties().put("project.version", new Property("project.version", project.getVersion()));
 	}
 
 	private void setDependencyManagement(Project project) {
@@ -128,8 +130,12 @@ public class PomRootReaderStrategy implements IPomReader {
 				project.setProperties(project.getParentProject().getProperties());
 			} else {
 				logger.info("adding properties to project");
-//				TODO 
-//				project.setProperties(CollectionUtils.union(project.getProperties(), project.getParentProject().getProperties()));
+				Map<String, Property> parentMap = project.getParentProject().getProperties();
+				Map<String, Property> childMap = project.getProperties();
+				Map<String, Property> combinedMap = new HashMap<String, Property>();
+				combinedMap.putAll(parentMap);
+				combinedMap.putAll(childMap);
+				project.setProperties(combinedMap);
 			}
 		}
 	}
@@ -157,7 +163,8 @@ public class PomRootReaderStrategy implements IPomReader {
 		}
 	}
 
-	public String replaceVariable(String text, Map<String, Property> properties) {
+	private String replaceVariable(String text, Map<String, Property> properties) {
+		// TODO use StrSubstitutor instead this implementation 
 		String replaced = text;
 
 		if (text != null) {
@@ -173,7 +180,7 @@ public class PomRootReaderStrategy implements IPomReader {
 					property = properties.get(propertyName);
 					if (property != null) {
 						String value = property.getValue();
-						Matcher otherVariable = PATTERN_VARIABLE.matcher(replaced);
+						Matcher otherVariable = PATTERN_VARIABLE.matcher(value);
 						if (!otherVariable.find()) {
 							logger.debug("init replace variable " + text + " for " + value);
 							replaced = replaced.replaceAll("\\$\\{" + propertyName + "\\}", StringEscapeUtils.escapeJava(value));

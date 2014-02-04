@@ -56,11 +56,12 @@ public class MavenDependencyAnalyzer {
 		transaction.begin();
 
 		for (Project project : poms.values()) {
-			ArtifactEntity artifact = new ArtifactEntity();
-			artifact.setArtifactId(project.getArtifactId());
-			artifact.setGroupId(project.getGroupId());
+			ArtifactEntity artifact = findArtifactOrCreate(
+					entityManager, 
+					new Dependency(project.getGroupId(),
+							project.getArtifactId(),
+							project.getVersion()));
 			artifact.setPackaging(Packaging.getPackaging(project.getPackaging()));
-			artifact.setVersion(project.getVersion());
 
 			logger.debug(artifact);
 			entityManager.persist(artifact);
