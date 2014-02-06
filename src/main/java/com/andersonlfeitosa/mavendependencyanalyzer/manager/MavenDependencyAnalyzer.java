@@ -40,6 +40,16 @@ public class MavenDependencyAnalyzer {
 		IPomReader reader = createPomReader(file.isDirectory());
 		Map<String, Project> poms = reader.read(file);
 		persistObjects(poms);
+		
+		plotGraph(poms);
+		
+	}
+
+	private void plotGraph(Map<String, Project> poms) {
+		
+		
+		
+		
 	}
 
 	private IPomReader createPomReader(boolean directory) {

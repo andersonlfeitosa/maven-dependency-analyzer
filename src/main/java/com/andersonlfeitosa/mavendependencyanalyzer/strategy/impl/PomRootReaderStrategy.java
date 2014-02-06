@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -117,8 +118,10 @@ public class PomRootReaderStrategy implements IPomReader {
 				project.setDependencyManagement(project.getParentProject().getDependencyManagement());
 			} else {
 				logger.info("adding dependencies to project");
-//				TODO 
-//				project.getDependencyManagement().setDependencies((Set<Dependency>) CollectionUtils.union(project.getParentProject().getDependencyManagement().getDependencies(), project.getDependencyManagement().getDependencies()));
+				project.getDependencyManagement().setDependencies(
+						(Set<Dependency>) CollectionUtils.union(
+								project.getParentProject().getDependencyManagement().getDependencies(), 
+								project.getDependencyManagement().getDependencies()));
 			}
 		}
 	}
