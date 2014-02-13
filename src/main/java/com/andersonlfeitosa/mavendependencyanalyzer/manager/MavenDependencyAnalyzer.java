@@ -46,9 +46,34 @@ public class MavenDependencyAnalyzer {
 	}
 
 	private void plotGraph(Map<String, Project> poms) {
+		StringBuilder sb = new StringBuilder();
 		
+		for (Project project : poms.values()) {
+			
+			sb.append("{\"name\":");
+			sb.append("\"");
+			sb.append(project.getArtifactId());
+			sb.append("\",\"size\":3938,\"imports\":[");
+			
+			if (project.getDependencies() != null) {
+				for (int i = 0; i < project.getDependencies().size(); i++) {
+					Dependency dependency = project.getDependencies().get(i);
+					sb.append("\"");
+					sb.append(dependency.getArtifactId());
+					sb.append("\"");
+					
+					if (i < project.getDependencies().size()-1) {
+						sb.append(",");
+					}
+				}
+			}
+			
+			sb.append("]},");
+			sb.append("\n");
+		}
 		
-		
+		String data = sb.toString();
+		logger.debug(data.substring(0, data.length()-2));
 		
 	}
 

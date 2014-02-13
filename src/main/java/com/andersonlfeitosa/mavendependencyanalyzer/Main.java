@@ -44,8 +44,8 @@ public class Main {
 	private Options configureCommandLineArgs() {
 		Options options = new Options();
 
-		Option directory = OptionBuilder.withArgName("root directory").isRequired()
-				.hasArgs().withDescription("Root directory to be analyzed")
+		Option directory = OptionBuilder.withArgName("root directory or root pom.xml").isRequired()
+				.hasArgs().withDescription("Root directory or root pom.xml to be analyzed")
 				.create("d");
 
 		Option debug = OptionBuilder.withArgName("debug")
