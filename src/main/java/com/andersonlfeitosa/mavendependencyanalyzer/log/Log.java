@@ -19,7 +19,7 @@ public class Log {
 		logger = Logger.getLogger("com.andersonlfeitosa.mavendependencyanalyzer");
 	}
 
-	public static Log getInstance() {
+	public static Log getLogger() {
 		return instance;
 	}
 

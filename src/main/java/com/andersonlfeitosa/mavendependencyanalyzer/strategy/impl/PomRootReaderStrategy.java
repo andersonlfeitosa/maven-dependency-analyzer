@@ -29,11 +29,9 @@ public class PomRootReaderStrategy implements IPomReader {
 	
 	private static final Pattern PATTERN_VARIABLE = Pattern.compile("\\$\\{(.*?)\\}");
 	
-	private static final Log logger = Log.getInstance();
+	private static final Log logger = Log.getLogger();
 	
 	private Map<String, Project> poms = new HashMap<String, Project>();
-	
-	private Project root;
 	
 	@Override
 	public Map<String, Project> read(File file) { 
@@ -48,7 +46,6 @@ public class PomRootReaderStrategy implements IPomReader {
 			String sfile = FileUtils.readFileToString(file);
 			Project project = (Project) xstream.fromXML(sfile);
 			setPomFile(project, file);
-			setRootProject(aggregatorProject, project);
 			setAggregatorProject(aggregatorProject, project);
 			setParentProject(project); // TODO could use variable
 			setProperties(project); 
@@ -72,13 +69,6 @@ public class PomRootReaderStrategy implements IPomReader {
 
 	private void setPomFile(Project project, File file) {
 		project.setPom(file);		
-	}
-
-	private void setRootProject(Project aggregatorProject, Project project) {
-		if (aggregatorProject == null) {
-			logger.info("setting the root pom file");
-			this.root = project;
-		} 
 	}
 
 	private void setAggregatorProject(Project aggregatorProject, Project project) {
@@ -106,9 +96,9 @@ public class PomRootReaderStrategy implements IPomReader {
 			project.setVersion(project.getParent().getVersion());
 		}
 		
-		project.getProperties().put("project.groupId", new Property("project.groupId", project.getGroupId()));
-		project.getProperties().put("project.artifactId", new Property("project.artifactId", project.getArtifactId()));
-		project.getProperties().put("project.version", new Property("project.version", project.getVersion()));
+		project.addProperty("project.groupId", new Property("project.groupId", project.getGroupId()));
+		project.addProperty("project.artifactId", new Property("project.artifactId", project.getArtifactId()));
+		project.addProperty("project.version", new Property("project.version", project.getVersion()));
 	}
 
 	private void setDependencyManagement(Project project) {
@@ -231,9 +221,4 @@ public class PomRootReaderStrategy implements IPomReader {
 		}
 	}
 	
-	@Override
-	public Project getRoot() {
-		return root;
-	}
-
 }

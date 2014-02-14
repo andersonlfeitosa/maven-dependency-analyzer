@@ -31,9 +31,7 @@ public class DependencyDaoImpl extends DaoAbstract<DependencyEntity> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public DependencyEntity find(DependencyEntity filter) {
-		DependencyEntity result = null;
 		Query query = getEntityManager().createQuery(
 				"from com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity a "
 				+ "where a.dependency.groupId = :groupId "
@@ -43,14 +41,7 @@ public class DependencyDaoImpl extends DaoAbstract<DependencyEntity> {
 		query.setParameter("groupId", filter.getDependency().getGroupId());
 		query.setParameter("artifactId", filter.getDependency().getArtifactId());
 		query.setParameter("version", filter.getDependency().getVersion());
-		query.setMaxResults(1);
-		
-		List<DependencyEntity> artifacts = query.getResultList();
-		if (artifacts != null && !artifacts.isEmpty()) {
-			result = artifacts.get(0);
-		}
-		
-		return result;
+		return (DependencyEntity) query.getSingleResult();
 	}
 
 	@Override

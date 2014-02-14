@@ -1,9 +1,6 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.manager;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -13,14 +10,14 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import org.apache.commons.io.FileUtils;
-
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Packaging;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Scope;
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.Type;
 import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
+import com.andersonlfeitosa.mavendependencyanalyzer.report.HTMLReporter;
+import com.andersonlfeitosa.mavendependencyanalyzer.report.IReport;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.IPomReader;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.impl.DirectoryPomReaderStrategy;
 import com.andersonlfeitosa.mavendependencyanalyzer.strategy.impl.PomRootReaderStrategy;
@@ -31,7 +28,7 @@ public class MavenDependencyAnalyzer {
 
 	private static final MavenDependencyAnalyzer instance = new MavenDependencyAnalyzer();
 
-	private static final Log logger = Log.getInstance();
+	private static final Log logger = Log.getLogger();
 	
 	private EntityManagerFactory entityManagerFactory = null;
 	
@@ -68,50 +65,8 @@ public class MavenDependencyAnalyzer {
 
 	private void plotGraph() {
 		List<ArtifactEntity> artifacts = findAllArtifacts();
-		StringBuilder sb = new StringBuilder();
-		
-		for (ArtifactEntity a : artifacts) {
-			
-			sb.append("{\"name\":");
-			sb.append("\"");
-			sb.append(a.getArtifactId());
-			sb.append("\",\"size\":");
-			sb.append(a.getDependencies().size());
-			sb.append(",\"imports\":[");
-			
-			if (a.getDependencies() != null) {
-				for (int i = 0; i < a.getDependencies().size(); i++) {
-					
-					DependencyEntity dependency = a.getDependencies().get(i);
-					
-					sb.append("\"");
-					sb.append(dependency.getDependency().getArtifactId());
-					sb.append("\"");
-					
-					if (i < a.getDependencies().size()-1) {
-						sb.append(",");
-					}
-				}
-			}
-			
-			sb.append("]},");
-			sb.append("\n");
-		}
-		
-		String data = sb.toString();
-		data = data.substring(0, data.length()-2);
-		logger.debug(data);
-
-		try {
-			URL url = getClass().getClassLoader().getResource("maven-graph-dependency.html");
-			File file = new File(url.toURI());
-			String text = FileUtils.readFileToString(file);
-			text = text.replace("${PROJECT_DATA}", data);
-			FileUtils.writeStringToFile(new File("result.html"), text);
-		} catch (URISyntaxException | IOException e) {
-			e.printStackTrace();
-		}
-		
+		IReport reporter = new HTMLReporter();
+		reporter.print(artifacts);
 	}
 
 	private IPomReader createPomReader(boolean directory) {

@@ -1,6 +1,7 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.xml.object;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -135,6 +136,14 @@ public class Project {
 
 	public void setPom(File pom) {
 		this.pom = pom;
+	}
+	
+	public void addProperty(String key, Property property) {
+		if (getProperties() == null) {
+			setProperties(new HashMap<String, Property>());
+		}
+		
+		getProperties().put(key, property);
 	}
 
 }

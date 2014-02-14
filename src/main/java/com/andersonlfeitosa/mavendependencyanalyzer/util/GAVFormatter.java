@@ -6,11 +6,11 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import com.andersonlfeitosa.mavendependencyanalyzer.log.Log;
 
-public class GAVFormatter {
+public final class GAVFormatter {
 
 	private static final String GAV_SEPARATOR = ":";
 	
-	private static final Log logger = Log.getInstance();
+	private static final Log logger = Log.getLogger();
 
 	public static String gavToString(Object project) {
 		StringBuilder sb = new StringBuilder();

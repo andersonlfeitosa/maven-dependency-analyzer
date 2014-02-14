@@ -3,8 +3,6 @@ package com.andersonlfeitosa.mavendependencyanalyzer.dao;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.EntityTransaction;
-
 public interface IDao<T> {
 	
 	void save(T e);
@@ -19,6 +17,4 @@ public interface IDao<T> {
 
 	T find(T filter);
 
-	EntityTransaction getTransaction();
-	
 }

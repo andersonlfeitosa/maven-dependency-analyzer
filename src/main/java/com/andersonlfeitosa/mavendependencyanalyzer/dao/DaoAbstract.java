@@ -4,45 +4,27 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 
 public abstract class DaoAbstract<T> implements IDao<T>, Closeable {
-	
-	private EntityManagerFactory entityManagerFactory;
 	
 	private EntityManager entityManager;
 	
 	public DaoAbstract() {
-		entityManagerFactory = Persistence.createEntityManagerFactory("dmpu");
-		entityManager = entityManagerFactory.createEntityManager();
+		entityManager = PersistenceUtil.getInstance().getEntityManager();
 	}
 
-	public EntityManagerFactory getEntityManagerFactory() {
-		return entityManagerFactory;
-	}
-	
-	public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
-		this.entityManagerFactory = entityManagerFactory;
-	}
-	
 	public EntityManager getEntityManager() {
 		return entityManager;
 	}
 	
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
+	public EntityTransaction getTransaction() {
+		return entityManager.getTransaction();
 	}
 	
 	@Override
 	public void close() throws IOException {
 		entityManager.close();
-		entityManagerFactory.close();
-	}
-
-	public EntityTransaction getTransaction() {
-		return entityManager.getTransaction();
 	}
 	
 }

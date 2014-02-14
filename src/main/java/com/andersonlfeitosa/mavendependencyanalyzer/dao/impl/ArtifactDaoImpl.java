@@ -31,9 +31,7 @@ public class ArtifactDaoImpl extends DaoAbstract<ArtifactEntity> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public ArtifactEntity find(ArtifactEntity filter) {
-		ArtifactEntity result = null;
 		Query query = getEntityManager().createQuery(
 				"from com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity a "
 				+ "where a.groupId = :groupId "
@@ -43,21 +41,14 @@ public class ArtifactDaoImpl extends DaoAbstract<ArtifactEntity> {
 		query.setParameter("groupId", filter.getGroupId());
 		query.setParameter("artifactId", filter.getArtifactId());
 		query.setParameter("version", filter.getVersion());
-		query.setMaxResults(1);
-		
-		List<ArtifactEntity> artifacts = query.getResultList();
-		if (artifacts != null && !artifacts.isEmpty()) {
-			result = artifacts.get(0);
-		}
-		
-		return result;
+		return (ArtifactEntity) query.getSingleResult();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<ArtifactEntity> list() {
 		return getEntityManager().createQuery(
-				"from com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity a").getResultList();
+				"from com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity").getResultList();
 	}
 
 }

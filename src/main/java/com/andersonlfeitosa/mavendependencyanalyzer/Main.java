@@ -29,7 +29,7 @@ public class Main {
 			boolean debug = line.hasOption("v");
 			
 			if (debug) {
-				Log.getInstance().setDebug();
+				Log.getLogger().setDebug();
 			}
 			
 			MavenDependencyAnalyzer.getInstance().execute(directory);
