@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,7 +40,7 @@ public class ArtifactEntity implements Serializable {
 	@Column(nullable = false)
 	private String version;
 
-	@OneToMany(mappedBy = "dependency")
+	@OneToMany(mappedBy = "dependency", fetch = FetchType.EAGER)
 	private List<DependencyEntity> dependencies = new ArrayList<DependencyEntity>();
 
 	public Long getId() {
