@@ -1,6 +1,5 @@
 package com.andersonlfeitosa.mavendependencyanalyzer.strategy.impl;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
@@ -31,7 +30,17 @@ public class PomRootReaderStrategyTest {
 		assertSame(4, poms.values().size());
 		
 		Project project = poms.get("com.app1:app1:1.0.0.0-SNAPSHOT");
+		assertEquals(project.getGroupId(), "com.app1");
+		assertEquals(project.getArtifactId(), "app1");
+		assertEquals(project.getVersion(), "1.0.0.0-SNAPSHOT");
+		assertEquals(project.getModules().size(), 1);
 		assertEquals(project.getModules().get(0), "mod1");
+		assertEquals(null, project.getDependencies());
+		assertEquals(null, project.getAggregatorProject());
+		assertEquals("com.pom", project.getParent().getGroupId());
+		assertEquals("super-pom", project.getParent().getArtifactId());
+		assertEquals("1.0.0.0", project.getParent().getVersion());
+//		assertEquals("poms/app1/pom.xml", project.getPom().getPath());
 	}
 
 	private File createFile(String path) {
