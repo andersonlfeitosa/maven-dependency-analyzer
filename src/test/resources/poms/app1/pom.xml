@@ -14,8 +14,4 @@
     <version>1.0.0.0</version>
   </parent>
 
-  <modules>
-    <module>mod1</module>
-  </modules>
-
 </project>

@@ -7,6 +7,7 @@
   <artifactId>mod1</artifactId>
   <packaging>pom</packaging>
   <version>1.0.0.0-SNAPSHOT</version>
+  <name>mod1</name>
 
   <parent>
     <groupId>com.app2</groupId>
@@ -16,6 +17,5 @@
 
   <modules>
     <module>proj1</module>
-    <module>proj2</module>
   </modules>
 </project>

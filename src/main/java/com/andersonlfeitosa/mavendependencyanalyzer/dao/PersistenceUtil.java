@@ -17,9 +17,13 @@ public class PersistenceUtil implements Closeable {
 	
 	private EntityManagerFactory entityManagerFactory = null;
 	
+	private EntityManager entityManager = null;
+	
 	private PersistenceUtil() {
 		entityManagerFactory = Persistence.createEntityManagerFactory("dmpu");
 		logger.info("starting entity manager factory for maven dependency analyzer");
+		entityManager = entityManagerFactory.createEntityManager();
+		logger.info("starting entity manager for maven dependency analyzer");
 	}
 
 	public static PersistenceUtil getInstance() {
@@ -28,15 +32,16 @@ public class PersistenceUtil implements Closeable {
 
 	@Override
 	public void close() throws IOException {
+		entityManager.close();
 		entityManagerFactory.close();
 	}
 
 	public EntityManagerFactory getEntityManagerFactory() {
-		return entityManagerFactory;
+		return this.entityManagerFactory;
 	}
 	
 	public EntityManager getEntityManager() {
-		return getEntityManagerFactory().createEntityManager();
+		return this.entityManager;
 	}
 
 }

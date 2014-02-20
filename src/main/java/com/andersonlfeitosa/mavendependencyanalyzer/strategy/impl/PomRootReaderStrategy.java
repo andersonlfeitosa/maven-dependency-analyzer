@@ -120,7 +120,10 @@ public class PomRootReaderStrategy implements IPomReader {
 		if (project.getParentProject() != null && project.getParentProject().getProperties() != null) {
 			if (project.getProperties() == null) {
 				logger.info("setting properties to project");
-				project.setProperties(project.getParentProject().getProperties());
+				Map<String, Property> combinedMap = new HashMap<String, Property>();
+				combinedMap.putAll(project.getParentProject().getProperties());
+				project.setProperties(combinedMap);
+//				project.setProperties(project.getParentProject().getProperties());
 			} else {
 				logger.info("adding properties to project");
 				Map<String, Property> parentMap = project.getParentProject().getProperties();

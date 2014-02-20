@@ -147,12 +147,40 @@ public class Project {
 	}
 
 	@Override
+	public String toString() {
+		return "Project [groupId=" + groupId + ", artifactId=" + artifactId
+				+ ", version=" + version + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime
+				* result
+				+ ((aggregatorProject == null) ? 0 : aggregatorProject
+						.hashCode());
 		result = prime * result
 				+ ((artifactId == null) ? 0 : artifactId.hashCode());
+		result = prime * result
+				+ ((dependencies == null) ? 0 : dependencies.hashCode());
+		result = prime
+				* result
+				+ ((dependencyManagement == null) ? 0 : dependencyManagement
+						.hashCode());
 		result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
+		result = prime * result
+				+ ((modelVersion == null) ? 0 : modelVersion.hashCode());
+		result = prime * result + ((modules == null) ? 0 : modules.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((packaging == null) ? 0 : packaging.hashCode());
+		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+		result = prime * result
+				+ ((parentProject == null) ? 0 : parentProject.hashCode());
+		result = prime * result + ((pom == null) ? 0 : pom.hashCode());
+		result = prime * result
+				+ ((properties == null) ? 0 : properties.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
@@ -166,15 +194,70 @@ public class Project {
 		if (getClass() != obj.getClass())
 			return false;
 		Project other = (Project) obj;
+		if (aggregatorProject == null) {
+			if (other.aggregatorProject != null)
+				return false;
+		} else if (!aggregatorProject.equals(other.aggregatorProject))
+			return false;
 		if (artifactId == null) {
 			if (other.artifactId != null)
 				return false;
 		} else if (!artifactId.equals(other.artifactId))
 			return false;
+		if (dependencies == null) {
+			if (other.dependencies != null)
+				return false;
+		} else if (!dependencies.equals(other.dependencies))
+			return false;
+		if (dependencyManagement == null) {
+			if (other.dependencyManagement != null)
+				return false;
+		} else if (!dependencyManagement.equals(other.dependencyManagement))
+			return false;
 		if (groupId == null) {
 			if (other.groupId != null)
 				return false;
 		} else if (!groupId.equals(other.groupId))
+			return false;
+		if (modelVersion == null) {
+			if (other.modelVersion != null)
+				return false;
+		} else if (!modelVersion.equals(other.modelVersion))
+			return false;
+		if (modules == null) {
+			if (other.modules != null)
+				return false;
+		} else if (!modules.equals(other.modules))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (packaging == null) {
+			if (other.packaging != null)
+				return false;
+		} else if (!packaging.equals(other.packaging))
+			return false;
+		if (parent == null) {
+			if (other.parent != null)
+				return false;
+		} else if (!parent.equals(other.parent))
+			return false;
+		if (parentProject == null) {
+			if (other.parentProject != null)
+				return false;
+		} else if (!parentProject.equals(other.parentProject))
+			return false;
+		if (pom == null) {
+			if (other.pom != null)
+				return false;
+		} else if (!pom.equals(other.pom))
+			return false;
+		if (properties == null) {
+			if (other.properties != null)
+				return false;
+		} else if (!properties.equals(other.properties))
 			return false;
 		if (version == null) {
 			if (other.version != null)
@@ -182,12 +265,6 @@ public class Project {
 		} else if (!version.equals(other.version))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Project [groupId=" + groupId + ", artifactId=" + artifactId
-				+ ", version=" + version + "]";
 	}
 
 }

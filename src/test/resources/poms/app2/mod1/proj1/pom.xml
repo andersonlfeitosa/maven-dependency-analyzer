@@ -7,6 +7,7 @@
   <artifactId>proj1</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0.0-SNAPSHOT</version>
+  <name>proj1</name>
 
   <parent>
     <groupId>com.app2</groupId>
