@@ -4,50 +4,25 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
 import com.andersonlfeitosa.mavendependencyanalyzer.entity.ArtifactEntity;
-import com.andersonlfeitosa.mavendependencyanalyzer.entity.DependencyEntity;
 
 public class HTMLReporter implements IReport {
 
 	@Override
 	public void print(List<ArtifactEntity> artifacts) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (ArtifactEntity a : artifacts) {
-			
-			sb.append("{\"name\":");
-			sb.append("\"");
-			sb.append(a.getArtifactId());
-			sb.append("\",\"size\":");
-			sb.append(a.getDependencies().size());
-			sb.append(",\"imports\":[");
-			
-			if (a.getDependencies() != null) {
-				for (int i = 0; i < a.getDependencies().size(); i++) {
-					
-					DependencyEntity dependency = a.getDependencies().get(i);
-					
-					sb.append("\"");
-					sb.append(dependency.getDependency().getArtifactId());
-					sb.append("\"");
-					
-					if (i < a.getDependencies().size()-1) {
-						sb.append(",");
-					}
-				}
-			}
-			
-			sb.append("]},");
-			sb.append("\n");
-		}
-		
-		String data = sb.toString();
-		data = data.substring(0, data.length()-2);
+		String data = artifactsToJSON(artifacts);
+		writeFile(data);
+	}
 
+	private void writeFile(String data) {
+//		FileUtils.readFileToString(new File());
+		
+		
 		try {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(
 					getClass().getClassLoader().getResourceAsStream("maven-graph-dependency.html")));
@@ -57,6 +32,7 @@ public class HTMLReporter implements IReport {
 			
 			while (line != null) {
 				text += line;
+				text += "\n";
 				line = buf.readLine();
 			}
 			
@@ -65,6 +41,20 @@ public class HTMLReporter implements IReport {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+	}
+
+	String artifactsToJSON(List<ArtifactEntity> artifacts) {
+		StringBuilder json = new StringBuilder();
+		Iterator<ArtifactEntity> it = artifacts.iterator();
+		while (it.hasNext()) {
+			json.append(it.next().toJSON());
+			if (it.hasNext()) {
+				json.append(",");
+			}
+		}
+		json.append("\n");
+		return json.toString();
 	}
 
 }

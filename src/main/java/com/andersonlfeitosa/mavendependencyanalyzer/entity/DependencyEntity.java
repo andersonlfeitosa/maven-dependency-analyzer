@@ -16,7 +16,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "DEPENDENCY")
-public class DependencyEntity implements Serializable {
+public class DependencyEntity implements Serializable, JSONable {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -127,6 +127,19 @@ public class DependencyEntity implements Serializable {
 		return "DependencyEntity [artifact=" + artifact + ", dependency="
 				+ dependency + ", scope=" + scope + ", classifier="
 				+ classifier + ", type=" + type + "]";
+	}
+
+	@Override
+	public String toJSON() {
+		StringBuilder sb = new StringBuilder();
+		
+		if (getDependency() != null && getDependency().getArtifactId() != null) {
+			sb.append("\"");
+			sb.append(getDependency().getArtifactId());
+			sb.append("\"");
+		}
+		
+		return sb.toString();
 	}
 
 }

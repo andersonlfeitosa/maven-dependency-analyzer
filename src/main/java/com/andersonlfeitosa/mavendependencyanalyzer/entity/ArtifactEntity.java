@@ -2,6 +2,7 @@ package com.andersonlfeitosa.mavendependencyanalyzer.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -19,7 +20,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = "ARTIFACT", uniqueConstraints = { @UniqueConstraint(columnNames = {
 		"artifactId", "groupId", "version" }) })
-public class ArtifactEntity implements Serializable {
+public class ArtifactEntity implements Serializable, JSONable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -140,6 +141,31 @@ public class ArtifactEntity implements Serializable {
 		return "ArtifactEntity [groupId=" + groupId + ", artifactId="
 				+ artifactId + ", packaging=" + packaging + ", version="
 				+ version + "]";
+	}
+
+	public String toJSON() {
+		StringBuilder sb = new StringBuilder();
+
+		if (getArtifactId() != null && getDependencies() != null) {
+			sb.append("{\"name\":");
+			sb.append("\"");
+			sb.append(getArtifactId());
+			sb.append("\",\"size\":");
+			sb.append(getDependencies().size());
+			sb.append(",\"imports\":[");
+
+			Iterator<DependencyEntity> it = getDependencies().iterator();
+			while (it.hasNext()) {
+				sb.append(it.next().toJSON());
+				if (it.hasNext()) {
+					sb.append(",");
+				}
+			}
+			
+			sb.append("]}");
+		}
+		
+		return sb.toString();
 	}
 
 }
